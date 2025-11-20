@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Drawing App</title>
+
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+</head>
+
+<body>
+
+    <section id="start-section" class="hidden">
+        <h1>Start with a short phrase</h1>
+        <div class="h-flex">
+            <input type="text" id="phrase-input" placeholder="Ex: a teleporting loaf of bread">
+            <button id="start-submit-btn" disabled>Submit</button>
+        </div>
+    </section>
+
+    <section id="drawing-section" class="hidden">
+        <div class="timer-header">
+            <div id="guess-timer-mirror" class="timer-mirror">2:00</div>
+            <h2>Draw the Phrase</h2>
+            <div id="guess-timer" class="timer">2:00</div>
+        </div>
+        <div class="controls">
+            <input type="color" id="colorPicker" value="#000000">
+            <input type="range" id="brushSize" min="1" max="30" value="5">
+            <button id="clearBtn">Clear</button>
+        </div>
+        <div id="middle-flex">
+            <div id="toolbar"></div>
+            <canvas id="drawing-canvas" width="800" height="500"></canvas>
+            <div id="color-panel"></div>
+        </div>
+    </section>
+
+    <section id="guess-section">
+        <div class="timer-header">
+            <div id="guess-timer-mirror" class="timer-mirror">2:00</div>
+            <h2>Make your guess</h2>
+            <div id="guess-timer" class="timer">2:00</div>
+        </div>
+        <div>
+            <canvas id="guess-canvas" width="800" height="500"></canvas>
+            <div id="guess-row" class="h-flex">
+                <input type="text" id="guess-input" placeholder="Guess Phrase">
+                <button id="guess-btn">Submit</button>
+            </div>
+        </div>
+    </section>
+
+    <script src="./app.js">
+        
+    </script>
+    <script src="./server.js"></script>
+
+</body>
+
+</html>
