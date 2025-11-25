@@ -100,7 +100,7 @@ input {
     font-size: 16pt;
     padding: 6px;
     border-radius: 6px;
-    margin: 0 4px;
+    margin: 0.25em;
 }
 
 #phrase-input {
@@ -121,7 +121,7 @@ button {
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
-    margin: 0 4px;
+    margin: 0.25em;
 }
 
 button:disabled,

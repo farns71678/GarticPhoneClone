@@ -1,4 +1,4 @@
-const socketUrl = "ws://localhost:5600";
+const socketUrl = "ws://localhost:3000/wsconnect";
 let socket = null;
 
 try {

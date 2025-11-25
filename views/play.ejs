@@ -13,6 +13,19 @@
 
 <body>
 
+    <section id="lobby-section">
+        <h1>Lobby</h1>
+        <div id="info">
+            <p>Join Code: <span id="lobby-game-code"><%= joinCode %></span></p>
+            <p>Your Name: <span id="lobby-username"><%= username %></span></p>
+        </div>
+        <div id="lobby-players-list">
+            <h2>Players:</h2>
+            <ul id="players-ul"></ul>
+        </div>
+        <button id="begin-game-btn">Begin Game</button>
+    </section>
+
     <section id="start-section" class="hidden">
         <h1>Start with a short phrase</h1>
         <div class="h-flex">
@@ -39,7 +52,7 @@
         </div>
     </section>
 
-    <section id="guess-section">
+    <section id="guess-section" class="hidden">
         <div class="timer-header">
             <div id="guess-timer-mirror" class="timer-mirror">2:00</div>
             <h2>Make your guess</h2>
@@ -54,9 +67,7 @@
         </div>
     </section>
 
-    <script src="./app.js">
-        
-    </script>
+    <script src="./app.js"></script>
     <script src="./server.js"></script>
 
 </body>

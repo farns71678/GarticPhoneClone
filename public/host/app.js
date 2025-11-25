@@ -1,27 +1,30 @@
-const socketUrl = "ws://localhost:3000/creategame";
+const hostErr = document.getElementById("host-error");
+const socketUrl = "ws://localhost:3000/joinroom";
 let socket = null;
 
-document.getElementById("host-game-btn").addEventListener("click", () => {
-    try {
-        socket = new WebSocket(socketUrl);
-
-        socket.addEventListener("open", () => {
-            console.log("Connected to socket");
-        });
-
-        socket.addEventListener("close", () => {
-            console.log("Closed socket connection");
-        });
-
-        socket.addEventListener("error", (err) => {
-            console.log(`An error occured in the WebSocket: ${err}`);
-        });
-
-        socket.addEventListener("message", (event) => {
-            console.log(event.data);
-        });
+document.getElementById("host-game-btn").addEventListener("click", async function () {
+    const username = document.getElementById("user-name").value.trim();
+    if (!username) {
+        hostErr.innerText = "Please enter a username.";
+        return;
     }
-    catch (err) {
-        console.log(`Unable to host a game: ${err}`);
+
+    try {
+        this.disabled = true;
+        let res = await fetch('/hostgame?username=' + encodeURIComponent(username));
+        if (!res.ok) {
+            let data = await res.json();
+            hostErr.innerText = data.error || "Failed to create a game room. Please try again.";
+            this.disabled = false;
+            return;
+        }
+
+        if (res.redirected) {
+            window.location.href = res.url;
+        }
+    } catch (error) {
+        hostErr.innerText = "An error occurred. Please try again.";
+        this.disabled = false;
+        return;
     }
 });
