@@ -1,3 +1,5 @@
+const WebSocket = require('ws');
+
 const GameStage = {
     LOBBY: 'lobby',
     DRAWING: 'drawing',
@@ -17,6 +19,17 @@ class GameRoom {
 
     addPlayer(player) {
         this.players.push(player);
+
+        // message existing players about new player
+        this.broadcastMessage({ type: 'player-connected', player: { username: player.username } });
+    }
+
+    broadcastMessage(message) {
+        this.players.forEach(player => {
+            if (player.socket && player.socket.readyState === WebSocket.OPEN) {
+                player.socket.send(JSON.stringify(message));
+            }
+        });
     }
 }
 

@@ -9,6 +9,7 @@ const http = require('http');
 const cookieParser = require("cookie-parser");
 const cookie = require('cookie');
 const { checkUser } = require('./middleware/authmiddleware');
+const { type } = require('express/lib/response');
 const app = express();
 
 let gameRooms = [];
@@ -165,8 +166,40 @@ wss.on('connection', (ws, req, client) => {
                 return;
             }
 
+            // make sure game is in lobby stage
+            if (room.state !== 'lobby') {
+                ws.close(1008, "Game already started");
+                return;
+            }
+
             player.socket = ws;
             console.log(`WebSocket authenticated for player ${player.username} in game ${room.joinCode}`);
+
+            // initialize ws events
+            ws.on('message', (msg) => {
+                // TODO: handle incoming messages from player
+                try {
+                    const message = JSON.parse(msg);
+                    if (message.type === 'player-list-request') {
+                        const playerList = room.players.filter(p => p.socket != null).map(p => ({ username: p.username }));
+                        ws.send(JSON.stringify({ type: 'player-list', players: playerList }));
+                    }
+                }
+                catch (err) {
+                    console.log(`Error processing message from player ${player.username}: ${err}`);
+                }
+            });
+
+            ws.on('close', () => {
+                try {
+                    console.log('Websocket connection closed for player ' + player.username);
+                    player.socket = null;
+                    room.broadcastMessage({ type: 'player-disconnected', player: { username: player.username }});
+                }
+                catch (err) {
+                    console.log(`Error on websocket close from player ${player.username}: ${err}`);
+                }
+            });
         });
     }
     catch (err) {
