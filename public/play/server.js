@@ -52,6 +52,9 @@ try {
                 }
             }
         }
+        else if (message.type === 'start-game') {
+            switchSection("start-section");
+        }
     });
 
     socket.addEventListener("close", () => {
@@ -60,4 +63,13 @@ try {
 }
 catch (err) {
     console.log(`Error connecting to websocket: ${err}`);
+}
+
+function switchSection(sectionId) {
+    const sections = document.getElementsByTagName("section");
+    //sections.forEach(section => section.classList.add("hidden"));
+    for (let i = 0; i < sections.length; i++) {
+        sections[i].classList.add("hidden");
+    }
+    document.getElementById(sectionId).classList.remove("hidden");
 }

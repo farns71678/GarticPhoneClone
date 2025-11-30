@@ -129,7 +129,8 @@ app.get('/play', checkUser, (req, res) => {
         playerID: player.id,
         username: player.username,
         joinCode: room.joinCode,
-        gameID: room.id
+        gameID: room.id,
+        isHost: room.host.id === player.id
     });
 });
 
@@ -167,7 +168,7 @@ wss.on('connection', (ws, req, client) => {
             }
 
             // make sure game is in lobby stage
-            if (room.state !== 'lobby') {
+            if (room.stage !== 'lobby') {
                 ws.close(1008, "Game already started");
                 return;
             }
@@ -183,6 +184,18 @@ wss.on('connection', (ws, req, client) => {
                     if (message.type === 'player-list-request') {
                         const playerList = room.players.filter(p => p.socket != null).map(p => ({ username: p.username }));
                         ws.send(JSON.stringify({ type: 'player-list', players: playerList }));
+                    }
+                    else if (message.type === 'start-game' && room.host.id === player.id && room.stage === 'lobby') {
+                        room.stage = 'prompt';
+                        room.broadcastMessage({ type: 'start-game' });
+                    }
+                    else if (message.type === 'set-prompt' && room.stage === 'prompt' && !player.startingPrompt) {
+                        player.startingPrompt = message.prompt;
+                        // check if all players have set their prompts
+                        if (room.players.every(p => p.startingPrompt)) {
+                            // start gameplay
+                            room.advanceRound();
+                        }
                     }
                 }
                 catch (err) {

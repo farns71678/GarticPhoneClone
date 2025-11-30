@@ -23,7 +23,9 @@
             <h2>Players:</h2>
             <ul id="players-ul"></ul>
         </div>
-        <button id="begin-game-btn">Begin Game</button>
+        <% if (isHost) { %>
+            <button id="begin-game-btn">Begin Game</button>
+        <% } %>
     </section>
 
     <section id="start-section" class="hidden">

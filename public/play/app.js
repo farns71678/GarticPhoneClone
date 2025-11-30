@@ -6,6 +6,7 @@ const width = canvas.width;
 const height = canvas.height;
 const startPromptInput = document.getElementById("phrase-input");
 const startSubmitBtn = document.getElementById("start-submit-btn");
+const startGameButton = document.getElementById("begin-game-btn");
 
 const tools = {
     pen: {
@@ -96,7 +97,7 @@ let lastMousePos = new Point(0, 0);
 class Path {
     constructor(color, thickness) {
         this.color = color;
-        this.thinkness = thickness;
+        this.thickness = thickness;
         this.points = [];
     }
 
@@ -104,6 +105,16 @@ class Path {
 
     addPoint(point) {
         this.points.push(point);
+    }
+
+    // converts to json string
+    toPlainObject() {
+        return {
+            type: "path",
+            color,
+            thickness,
+            points
+        };
     }
 }
 
@@ -118,7 +129,7 @@ class BrushPath extends Path {
         context.lineCap = 'round';
         context.beginPath();
         context.strokeStyle = this.color;
-        context.lineWidth = this.thinkness;
+        context.lineWidth = this.thickness;
         context.globalCompositeOperation = 'source-over';
         context.moveTo(this.points[0].x, this.points[0].y);
         this.points.forEach((point, index) => {
@@ -126,6 +137,15 @@ class BrushPath extends Path {
             context.moveTo(point.x, point.y);
         });
         context.stroke();
+    }
+
+    toPlainObject() {
+        return {
+            type: "brush-path",
+            color,
+            thickness,
+            points
+        };
     }
 }
 
@@ -140,7 +160,7 @@ class EraserPath extends Path {
         context.beginPath();
         context.lineCap = 'round';
         context.strokeStyle = this.color;
-        context.lineWidth = this.thinkness;
+        context.lineWidth = this.thickness;
         context.globalCompositeOperation = 'destination-out';
         context.moveTo(this.points[0].x, this.points[0].y);
         this.points.forEach((point, index) => {
@@ -149,11 +169,23 @@ class EraserPath extends Path {
         });
         context.stroke();
     }
+
+    toPlainObject() {
+        return {
+            type: "eraser-path",
+            thickness,
+            points
+        };
+    }
 }
 
 class ClearPath {
     draw(context) {
         clearCanvas();
+    }
+
+    toPlainObject() {
+        return { type: "clear-path" };
     }
 }
 
@@ -173,6 +205,15 @@ class BucketPath {
     drawAction(context) {
         floodFill(this.imageData, this.x, this.y, this.targetColor, this.fillColor);
     }
+
+    toPlainObject() {
+        return {
+            type: "bucket-path",
+            x, y,
+            targetColor,
+            fillColor
+        };
+    }
 }
 
 class PolygonPath extends Path {
@@ -185,7 +226,7 @@ class PolygonPath extends Path {
         context.beginPath();
         context.lineCap = 'round';
         ctx.strokeStyle = this.color;
-        ctx.lineWidth = this.thinkness;
+        ctx.lineWidth = this.thickness;
         ctx.drawingMode = 'source-over';
         context.moveTo(this.points[0].x, this.points[0].y);
         this.points.forEach((point, index) => {
@@ -202,7 +243,7 @@ class PolygonPath extends Path {
         context.beginPath();
         context.lineCap = 'round';
         ctx.strokeStyle = this.color;
-        ctx.lineWidth = this.thinkness;
+        ctx.lineWidth = this.thickness;
         ctx.drawingMode = 'source-over';
         context.moveTo(modifiedPoints[0].x, modifiedPoints[0].y);
         modifiedPoints.forEach((point, index) => {
@@ -211,6 +252,15 @@ class PolygonPath extends Path {
         });
         context.lineTo(modifiedPoints[0].x, modifiedPoints[0].y);
         context.stroke();
+    }
+
+    toPlainObject() {
+        return {
+            type: "polygon-path",
+            color,
+            thickness,
+            points
+        };
     }
 }
 
@@ -261,7 +311,13 @@ startSubmitBtn.addEventListener('click', function () {
     startPromptInput.disabled = true;
     startSubmitBtn.innerHTML = "Submited";
     // switch sections
-})
+});
+
+if (startGameButton) {
+    startGameButton.addEventListener('click', function () {
+        socket.send(JSON.stringify({ type: 'start-game' }));
+    });
+}
 
 // drawing function functionalities
 
