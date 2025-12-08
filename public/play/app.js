@@ -80,7 +80,6 @@ class Point {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.visible = true;
     }
 }
 
@@ -88,6 +87,7 @@ let painting = false;
 let currentPath = null;
 let currentTool = 'pen';
 
+let actionHistory = [];
 let actions = [];
 let viewActionIndex = -1;
 let contextMenu = false;
@@ -142,9 +142,9 @@ class BrushPath extends Path {
     toPlainObject() {
         return {
             type: "brush-path",
-            color,
-            thickness,
-            points
+            color: this.color,
+            thickness: this.thickness,
+            points: this.points.map(point => { return { x: point.x, y: point.y } })
         };
     }
 }
@@ -173,8 +173,8 @@ class EraserPath extends Path {
     toPlainObject() {
         return {
             type: "eraser-path",
-            thickness,
-            points
+            thickness: this.thickness,
+            points: this.points.map(point => { return { x: point.x, y: point.y } })
         };
     }
 }
@@ -190,7 +190,7 @@ class ClearPath {
 }
 
 class BucketPath {
-    constructor(imageData, x, y, targetColor, fillColor) {
+    constructor(x, y, targetColor, fillColor, imageData = null) {
         this.imageData = imageData;
         this.x = x;
         this.y = y;
@@ -199,19 +199,28 @@ class BucketPath {
     }
 
     draw(context) {
-        context.putImageData(this.imageData, 0, 0);
+        if (this.imageData) {
+            context.putImageData(this.imageData, 0, 0);
+        }
+        else {
+            this.drawAction(context);
+        }
     }
 
     drawAction(context) {
-        floodFill(this.imageData, this.x, this.y, this.targetColor, this.fillColor);
+        let data = context.getImageData(0, 0, width, height);
+        floodFill(data, this.x, this.y, this.targetColor, this.fillColor);
+        ctx.putImageData(data, 0, 0);
+        this.imageData = data;
     }
 
     toPlainObject() {
         return {
             type: "bucket-path",
-            x, y,
-            targetColor,
-            fillColor
+            x: this.x, 
+            y: this.y,
+            targetColor: this.targetColor,
+            fillColor: this.fillColor
         };
     }
 }
@@ -257,9 +266,9 @@ class PolygonPath extends Path {
     toPlainObject() {
         return {
             type: "polygon-path",
-            color,
-            thickness,
-            points
+            color: this.color,
+            thickness: this.thickness,
+            points: this.points.map(point => { return { x: point.x, y: point.y } })
         };
     }
 }
@@ -304,15 +313,6 @@ startPromptInput.addEventListener('input', function () {
     startSubmitBtn.disabled = this.value.trim().length < 5;
 });
 
-startSubmitBtn.addEventListener('click', function () {
-    const phrase = startSubmitBtn.value.trim();
-    console.log(phrase);
-    startSubmitBtn.disabled = true;
-    startPromptInput.disabled = true;
-    startSubmitBtn.innerHTML = "Submited";
-    // switch sections
-});
-
 if (startGameButton) {
     startGameButton.addEventListener('click', function () {
         socket.send(JSON.stringify({ type: 'start-game' }));
@@ -328,6 +328,7 @@ function appendAction(action) {
     }
     actions.push(action);
     viewActionIndex++;
+    actionHistory.push(action.toPlainObject());
 }
 
 function startPosition(e) {
@@ -372,7 +373,7 @@ function clickHandler(e) {
         const fillColor = hexToRgb(getBrushColor());
         floodFill(imageData, origin.x, origin.y, targetColor, fillColor);
         ctx.putImageData(imageData, 0, 0);
-        appendAction(new BucketPath(imageData, origin.x, origin.y, targetColor, fillColor));
+        appendAction(new BucketPath(origin.x, origin.y, targetColor, fillColor, imageData));
     }
 }
 
@@ -508,6 +509,7 @@ function undo() {
             }
         }
         paintCanvas();
+        actionHistory.push({ type: "undo" });
     }
 }
 
@@ -515,5 +517,6 @@ function redo() {
     if (viewActionIndex < actions.length - 1) {
         viewActionIndex++;
         paintCanvas();
+        actionHistory.push({ type: "redo" });
     }
 }

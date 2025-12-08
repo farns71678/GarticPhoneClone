@@ -9,7 +9,6 @@ const http = require('http');
 const cookieParser = require("cookie-parser");
 const cookie = require('cookie');
 const { checkUser } = require('./middleware/authmiddleware');
-const { type } = require('express/lib/response');
 const app = express();
 
 let gameRooms = [];
@@ -194,8 +193,16 @@ wss.on('connection', (ws, req, client) => {
                         // check if all players have set their prompts
                         if (room.players.every(p => p.startingPrompt)) {
                             // start gameplay
-                            room.advanceRound();
+                            room.startGame();
                         }
+                    }
+                    else if (message.type === 'set-guess' && room.stage === 'guessing' && message.round == room.round) {
+                        player.guesses[room.round / 2] = message.guess;
+                        room.checkAdvance();
+                    }
+                    else if (message.type === 'set-drawing' && room.stage === 'drawing' && message.round == room.round) {
+                        player.drawings[(room.round - 1) / 2] = message.drawing;
+                        room.checkAdvance();
                     }
                 }
                 catch (err) {

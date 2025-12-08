@@ -38,9 +38,9 @@
 
     <section id="drawing-section" class="hidden">
         <div class="timer-header">
-            <div id="guess-timer-mirror" class="timer-mirror">2:00</div>
+            <div id="draw-timer-mirror" class="timer-mirror">2:00</div>
             <h2>Draw the Phrase</h2>
-            <div id="guess-timer" class="timer">2:00</div>
+            <div id="draw-timer" class="timer">2:00</div>
         </div>
         <div class="controls">
             <input type="color" id="colorPicker" value="#000000">
@@ -51,6 +51,10 @@
             <div id="toolbar"></div>
             <canvas id="drawing-canvas" width="800" height="500"></canvas>
             <div id="color-panel"></div>
+        </div>
+        <div id="draw-prompt-flex" class="h-flex">
+            <input type="text" name="draw-prompt" id="draw-prompt">
+            <button id="drawing-submit">Submit</button>
         </div>
     </section>
 

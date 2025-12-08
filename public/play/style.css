@@ -60,6 +60,7 @@ canvas {
     margin: 10px 0;
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
 #color-panel {
@@ -101,6 +102,11 @@ input {
     padding: 6px;
     border-radius: 6px;
     margin: 0.25em;
+}
+
+#colorPicker {
+    height: 40px;
+    padding: 0;
 }
 
 #phrase-input {

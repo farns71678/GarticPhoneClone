@@ -17,6 +17,7 @@ class GameRoom {
         this.stage = GameStage.LOBBY;
         this.round = 0;
         this.addPlayer(this.host);
+        this.timeout = null;
     }
 
     addPlayer(player) {
@@ -34,6 +35,14 @@ class GameRoom {
         });
     }
 
+    startGame() {
+        for (let i = 0; i < this.players.length; i++) {
+            this.players[i].guesses = new Array(Math.floor(this.players.length / 2));
+            this.players[i].drawings = new Array(Math.ceil(this.players.length / 2));
+        }
+        this.advanceRound();
+    }
+
     advanceRound() {
         this.round += 1;
         if (this.round >= this.players.length) {
@@ -42,19 +51,35 @@ class GameRoom {
         }
 
         this.stage = this.stage === GameStage.DRAWING ? GameStage.GUESSING : GameStage.DRAWING;
+        const startTime = Date.now();
         this.players.forEach((player, index) => {
             if (player.socket && player.socket.readyState === WebSocket.OPEN) {
                 const promptIndex = (index + (this.players.length - this.round)) % this.players.length;
                 if (this.stage === GameStage.DRAWING) {
                     const prompt = this.round == 1 ? this.players[promptIndex].startingPrompt : this.players[promptIndex].guesses[this.round - 2];
-                    player.socket.send(JSON.stringify({ type: 'drawing-stage', prompt: prompt}));
+                    player.socket.send(JSON.stringify({ type: 'drawing-stage', prompt: prompt, round: this.round, startTime }));
                 }
                 else if (this.stage === GameStage.GUESSING) {
-                    const drawing = this.players[promptIndex].pictures[this.round - 1];
-                    player.socket.send(JSON.stringify({ type: 'guessing-stage', drawing: JSON.stringify(drawing) }));
+                    // here - the round indices are messed up
+                    const drawing = this.players[promptIndex].drawings[this.round - 2];
+                    player.socket.send(JSON.stringify({ type: 'guessing-stage', drawing: drawing, round: this.round, startTime }));
                 }
             }
-        })
+        });
+
+        if (this.stage === GameStage.GUESSING || this.stage === GameStage.DRAWING) {
+            const room = this;
+            // adds a bit of buffer to wait for the players to respond
+            this.timeout = setTimeout(() => room.advanceRound(), 1000 * 60 * 2 + 500);
+        } 
+    }
+
+    checkAdvance() {
+        const room = this;
+        if (this.players.every(player =>  room.stage === GameStage.GUESSING ? player.guesses[Math.floor((room.round - 2) / 2)] : player.drawings[Math.floor(room.round / 2)])) {
+            clearTimeout(this.timeout);
+            this.advanceRound();
+        }
     }
 
     endGame() {

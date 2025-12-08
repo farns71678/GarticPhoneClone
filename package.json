@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node --env-file=.env index.js",
-    "debug": "node --env-file=.env --inspect index.js"
+    "debug": "npx nodemon --env-file=.env --inspect index.js"
   },
   "author": "",
   "license": "ISC",
