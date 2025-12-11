@@ -75,6 +75,10 @@ try {
             timerEl = document.getElementById("guess-timer");
             setTimer(message.startTime);
         }
+        else if (message.type === 'results-stage' && message.players) {
+            console.log("Game over!");
+            endGame(message.players);
+        }
     });
 
     socket.addEventListener("close", () => {
@@ -135,7 +139,16 @@ function guessStage(drawing) {
     const guessCanvas = document.getElementById('guess-canvas');
     const guessCtx = guessCanvas.getContext('2d');
 
-    drawing.actions.forEach(action => {
+    drawToContext(drawing.actions, guessCtx);
+
+    document.getElementById("guess-input").value = "";
+    document.getElementById("guess-btn").disabled = false;
+
+    switchSection("guess-section");
+}
+
+function drawToContext(actions, context) {
+    actions.forEach(action => {
         let drawAction = null;
         switch (action.type) {
             case 'brush-path':
@@ -158,14 +171,9 @@ function guessStage(drawing) {
                 break;
         }
         if (drawAction) {
-            drawAction.draw(guessCtx)
+            drawAction.draw(context);
         }
     });
-
-    document.getElementById("guess-input").value = "";
-    document.getElementById("guess-btn").disabled = false;
-
-    switchSection("guess-section");
 }
 
 function setTimer(start) {
@@ -181,7 +189,7 @@ function setTimer(start) {
 
         const seconds = Math.floor(Math.max(endTime - currentTime, 0) / 1000);
         if (timerEl) {
-            timerEl.innerText = `${ Math.floor(seconds / 60) }:${ seconds % 60 }`;
+            timerEl.innerText = `${ Math.floor(seconds / 60) }:${ String(seconds % 60).padStart(2, '0') }`;
         }
         else console.log("no timer");
 
@@ -193,4 +201,44 @@ function setTimer(start) {
         }
 
     }, 1000);
+}
+
+function endGame(players) {
+    const resultsSection = document.getElementById("results-section");
+    const roundMax = players.length;
+    players.forEach((player, i) => {
+        resultsSection.appendChild(document.createElement('br'));
+        resultsSection.appendChild(createElementFromHTML(`<h2 style="color: lightskyblue;">${player.username}</h2>`));
+        // append prompt
+        resultsSection.appendChild(createElementFromHTML(`<input type='text' value='Starting Prompt: ${player.startingPrompt}' disabled>`));
+
+        // go through rounds
+        let drawingStage = false; 
+        for (let r = 1; r < roundMax; r++) {
+            drawingStage = !drawingStage;
+            const playerIndex = (i + r) % players.length;
+            const player = players[playerIndex];
+            if (drawingStage) {
+                const drawing = player.drawings[(r - 1) / 2];
+                const canvas = createElementFromHTML(`<canvas height='500' width='800'></canvas>`);
+                const ctx = canvas.getContext('2d');
+                drawToContext(drawing.actions, ctx);
+                resultsSection.appendChild(createElementFromHTML(`<h4>Drew by ${player.username}</h4>`));
+                resultsSection.appendChild(canvas);
+            }
+            else {
+                const guess = player.guesses[r / 2 - 1];
+                resultsSection.appendChild(createElementFromHTML(`<input type='text' value='${player.username}: ${guess}' disabled>`));
+            }
+        }
+    });
+
+    switchSection("results-section");
+}
+
+const createElementFromHTML = (html) => {
+    const el = document.createElement('div');
+    el.innerHTML = html;
+
+    return el.firstChild;
 }

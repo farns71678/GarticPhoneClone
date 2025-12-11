@@ -54,14 +54,13 @@ class GameRoom {
         const startTime = Date.now();
         this.players.forEach((player, index) => {
             if (player.socket && player.socket.readyState === WebSocket.OPEN) {
-                const promptIndex = (index + (this.players.length - this.round)) % this.players.length;
+                const promptIndex = (index + this.round) % this.players.length;
                 if (this.stage === GameStage.DRAWING) {
-                    const prompt = this.round == 1 ? this.players[promptIndex].startingPrompt : this.players[promptIndex].guesses[this.round - 2];
+                    const prompt = this.round == 1 ? this.players[promptIndex].startingPrompt : this.players[promptIndex].guesses[Math.floor(this.round / 2) - 2];
                     player.socket.send(JSON.stringify({ type: 'drawing-stage', prompt: prompt, round: this.round, startTime }));
                 }
                 else if (this.stage === GameStage.GUESSING) {
-                    // here - the round indices are messed up
-                    const drawing = this.players[promptIndex].drawings[this.round - 2];
+                    const drawing = this.players[promptIndex].drawings[Math.floor(this.round / 2) - 1];
                     player.socket.send(JSON.stringify({ type: 'guessing-stage', drawing: drawing, round: this.round, startTime }));
                 }
             }
@@ -76,7 +75,7 @@ class GameRoom {
 
     checkAdvance() {
         const room = this;
-        if (this.players.every(player =>  room.stage === GameStage.GUESSING ? player.guesses[Math.floor((room.round - 2) / 2)] : player.drawings[Math.floor(room.round / 2)])) {
+        if (this.players.every(player => room.stage === GameStage.GUESSING ? player.guesses[Math.floor(room.round / 2) - 1] : player.drawings[Math.floor(room.round / 2)])) {
             clearTimeout(this.timeout);
             this.advanceRound();
         }
@@ -84,7 +83,10 @@ class GameRoom {
 
     endGame() {
         this.stage = GameStage.RESULTS;
-        this.broadcastMessage({ type: 'result-stage' });
+        this.broadcastMessage({ 
+            type: 'results-stage',
+            players: this.players.map(p => { return { id: p.id, username: p.username, startingPrompt: p.startingPrompt, drawings: p.drawings, guesses: p.guesses }; })
+        });
     }
 }
 

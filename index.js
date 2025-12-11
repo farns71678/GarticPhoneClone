@@ -197,7 +197,7 @@ wss.on('connection', (ws, req, client) => {
                         }
                     }
                     else if (message.type === 'set-guess' && room.stage === 'guessing' && message.round == room.round) {
-                        player.guesses[room.round / 2] = message.guess;
+                        player.guesses[(room.round / 2) - 1] = message.guess;
                         room.checkAdvance();
                     }
                     else if (message.type === 'set-drawing' && room.stage === 'drawing' && message.round == room.round) {
