@@ -208,9 +208,9 @@ class BucketPath {
     }
 
     drawAction(context) {
-        let data = context.getImageData(0, 0, width, height);
+        const data = context.getImageData(0, 0, width, height);
         floodFill(data, this.x, this.y, this.targetColor, this.fillColor);
-        ctx.putImageData(data, 0, 0);
+        context.putImageData(data, 0, 0);
         this.imageData = data;
     }
 
@@ -234,9 +234,9 @@ class PolygonPath extends Path {
         if (this.points.length == 0) return;
         context.beginPath();
         context.lineCap = 'round';
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = this.thickness;
-        ctx.drawingMode = 'source-over';
+        context.strokeStyle = this.color;
+        context.lineWidth = this.thickness;
+        context.drawingMode = 'source-over';
         context.moveTo(this.points[0].x, this.points[0].y);
         this.points.forEach((point, index) => {
             context.lineTo(point.x, point.y);
@@ -251,9 +251,9 @@ class PolygonPath extends Path {
         if (modifiedPoints.length == 0) return;
         context.beginPath();
         context.lineCap = 'round';
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = this.thickness;
-        ctx.drawingMode = 'source-over';
+        context.strokeStyle = this.color;
+        context.lineWidth = this.thickness;
+        context.drawingMode = 'source-over';
         context.moveTo(modifiedPoints[0].x, modifiedPoints[0].y);
         modifiedPoints.forEach((point, index) => {
             context.lineTo(point.x, point.y);
@@ -397,8 +397,8 @@ function getMousePos(e) {
     return new Point(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
 }
 
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+function clearCanvas(context = ctx) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function draw(e) {
@@ -421,18 +421,18 @@ function draw(e) {
     }
 }
 
-function paintCanvas() {
+function paintCanvas(context = ctx) {
     clearCanvas();
     for (let i = 0; i < viewActionIndex + 1; i++) {
         if (actions[i])
-            actions[i].draw(ctx);
+            actions[i].draw(context);
     }
 
     if ((currentTool == 'pen' || currentTool == 'eraser') && currentPath) {
-        currentPath.draw(ctx);
+        currentPath.draw(context);
     }
     else if (currentTool == 'polygon' && currentPath) {
-        currentPath.drawWithPoint(ctx, lastMousePos);
+        currentPath.drawWithPoint(context, lastMousePos);
     }
 }
 

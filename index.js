@@ -61,7 +61,7 @@ app.get('/hostgame', checkUser, (req, res) => {
         const host = new Player(uuidv4(), username);
         const room = createGameRoom(host);
         res.cookie('jwt', createToken(host.id, room.id), { httpOnly: true, maxAge: maxAge * 1000});
-        res.redirect(`http://localhost:3000/play?playerID=${host.id}&username=${host.username}`);
+        res.redirect(`http://localhost:3000/play?playerID=${host.id}&username=${host.username}&room=${room.id}`);
         //res.json({ roomId: room.id, joinCode: room.joinCode, playerID: host.id, username: host.username });
     }
     catch (error) {
@@ -70,7 +70,7 @@ app.get('/hostgame', checkUser, (req, res) => {
     }
 });
 
-app.get('/joingame', checkUser, (req, res) => {
+app.get('/joingame'/*, checkUser*/, (req, res) => {
     const query = req.query;
     if (!query.joinCode || !query.username) {
         res.status(400).json({ error: "Join code and username are required" });
@@ -93,7 +93,7 @@ app.get('/joingame', checkUser, (req, res) => {
         room.addPlayer(player);
 
         res.cookie('jwt', createToken(player.id, room.id), { httpOnly: true, maxAge: maxAge * 1000});
-        res.redirect(`/play?playerID=${player.id}&username=${player.username}`);
+        res.redirect(`/play?playerID=${player.id}&username=${player.username}&room=${room.id}`);
     }
     catch (error) {
         console.log(`Error joining game: ${error}`);
@@ -106,18 +106,25 @@ app.get('/', (req, res) => {
 });
 
 app.get('/play', checkUser, (req, res) => {
-    if (!(res.locals.player && res.locals.room)) {
+    // if (!(res.locals.player && res.locals.room)) {
+    //     res.redirect('/join');
+    //     return;
+    // }
+
+    const query = req.query;
+    if (!query.room || !query.playerID) {
+        res.clearCookie('jwt');
         res.redirect('/join');
         return;
     }
 
-    const room = gameRooms.find(r => r.id == res.locals.room);
+    const room = gameRooms.find(r => r.id == query.room);
     if (!room) {
         res.clearCookie('jwt');
         res.redirect('/join');
         return;
     }
-    const player = room.players.find(p => p.id == res.locals.player);
+    const player = room.players.find(p => p.id == query.playerID);
     if (!player) {
         res.clearCookie('jwt');
         res.redirect('/join');

@@ -1,10 +1,22 @@
 const gameCodeInput = document.getElementById("game-code-input");
 const joinError = document.getElementById("join-error");
 
-gameCodeInput.addEventListener("keydown", function (event) {
-    if (isNaN(parseInt(event.key)) && event.key !== "Backspace" && event.key !== "Delete" && event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
-        event.preventDefault();
+gameCodeInput.addEventListener("input", function (event) {
+    const updated = this.value.trim();
+    const previous = this.getAttribute("previous") || "";
+    if (updated === "") {
+        this.setAttribute("previous", "");
+        this.value = "";
+        return;
     }
+    const val = parseInt(updated);
+    if (isNaN(val)) {
+        this.value = previous;
+        return;
+    }
+    const str = val.toString();
+    this.value = str.length > 6 ? str.substring(0, 6) : str;
+    this.setAttribute("previous", this.value);
 });
 
 document.getElementById("join-game-btn").addEventListener("click", async function () {

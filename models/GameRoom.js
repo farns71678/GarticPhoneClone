@@ -56,7 +56,7 @@ class GameRoom {
             if (player.socket && player.socket.readyState === WebSocket.OPEN) {
                 const promptIndex = (index + this.round) % this.players.length;
                 if (this.stage === GameStage.DRAWING) {
-                    const prompt = this.round == 1 ? this.players[promptIndex].startingPrompt : this.players[promptIndex].guesses[Math.floor(this.round / 2) - 2];
+                    const prompt = this.round == 1 ? this.players[(index - 1 + this.players.length) % this.players.length].startingPrompt : this.players[promptIndex].guesses[Math.floor(this.round / 2) - 2];
                     player.socket.send(JSON.stringify({ type: 'drawing-stage', prompt: prompt, round: this.round, startTime }));
                 }
                 else if (this.stage === GameStage.GUESSING) {

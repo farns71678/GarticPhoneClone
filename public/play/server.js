@@ -125,11 +125,12 @@ function switchSection(sectionId) {
 function drawStage(prompt) {
     painting = false;
     actions = [];
+    actionHistory = [];
     viewActionIndex = -1;
     contextMenu = false;
 
     clearCanvas();
-    document.getElementById("draw-prompt").value = prompt;
+    document.getElementById("draw-prompt").innerText = prompt;
     document.getElementById("drawing-submit").disabled = false;
 
     switchSection("drawing-section");
@@ -147,8 +148,13 @@ function guessStage(drawing) {
     switchSection("guess-section");
 }
 
-function drawToContext(actions, context) {
-    actions.forEach(action => {
+function drawToContext(drawActions, context) {
+    actions = [];
+    actionHistory = [];
+    viewActionIndex = -1;
+    clearCanvas(context);
+
+    drawActions.forEach(action => {
         let drawAction = null;
         switch (action.type) {
             case 'brush-path':
@@ -169,11 +175,18 @@ function drawToContext(actions, context) {
                 drawAction = new PolygonPath(action.color, action.thickness);
                 drawAction.points = action.points;
                 break;
+            case 'undo':
+                undo();
+                break;
+            case 'redo':
+                redo();
+                break;
         }
         if (drawAction) {
-            drawAction.draw(context);
+            appendAction(drawAction);
         }
     });
+    paintCanvas(context);
 }
 
 function setTimer(start) {
@@ -210,7 +223,7 @@ function endGame(players) {
         resultsSection.appendChild(document.createElement('br'));
         resultsSection.appendChild(createElementFromHTML(`<h2 style="color: lightskyblue;">${player.username}</h2>`));
         // append prompt
-        resultsSection.appendChild(createElementFromHTML(`<input type='text' value='Starting Prompt: ${player.startingPrompt}' disabled>`));
+        resultsSection.appendChild(createElementFromHTML(`<div class="prompt-box">${player.startingPrompt}</div>`));
 
         // go through rounds
         let drawingStage = false; 
@@ -228,7 +241,7 @@ function endGame(players) {
             }
             else {
                 const guess = player.guesses[r / 2 - 1];
-                resultsSection.appendChild(createElementFromHTML(`<input type='text' value='${player.username}: ${guess}' disabled>`));
+                resultsSection.appendChild(createElementFromHTML(`<div class="prompt-box">${player.username}: ${guess}</div>`));
             }
         }
     });

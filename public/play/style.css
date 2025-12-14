@@ -92,7 +92,7 @@ section {
 }
 
 /* generic input style */
-input {
+input,.prompt-box {
     font-weight: bold;
     outline: none;
     border: 3px solid grey;
@@ -102,6 +102,10 @@ input {
     padding: 6px;
     border-radius: 6px;
     margin: 0.25em;
+}
+
+.prompt-box {
+    flex-grow: 1;
 }
 
 #colorPicker {
