@@ -37,44 +37,50 @@
     </section>
 
     <section id="drawing-section" class="hidden">
-        <div class="timer-header">
-            <div id="draw-timer-mirror" class="timer-mirror">2:00</div>
-            <h2>Draw the Phrase</h2>
-            <div id="draw-timer" class="timer">2:00</div>
-        </div>
-        <div class="controls">
-            <input type="color" id="colorPicker" value="#000000">
-            <input type="range" id="brushSize" min="1" max="30" value="5">
-            <button id="clearBtn">Clear</button>
-        </div>
-        <div id="middle-flex">
-            <div id="toolbar"></div>
-            <canvas id="drawing-canvas" width="800" height="500"></canvas>
-            <div id="color-panel"></div>
-        </div>
-        <div id="draw-prompt-flex" class="h-flex">
-            <div class="prompt-box" id="draw-prompt"></div>
-            <button id="drawing-submit">Submit</button>
+        <div class="center-column">
+            <div class="timer-header">
+                <div id="draw-timer-mirror" class="timer-mirror">2:00</div>
+                <h2>Draw the Phrase</h2>
+                <div id="draw-timer" class="timer">2:00</div>
+            </div>
+            <div class="controls">
+                <input type="color" id="colorPicker" value="#000000">
+                <input type="range" id="brushSize" min="1" max="30" value="5">
+                <button id="clearBtn">Clear</button>
+            </div>
+            <div id="middle-flex">
+                <div id="toolbar"></div>
+                <canvas id="drawing-canvas" width="800" height="500"></canvas>
+                <div id="color-panel"></div>
+            </div>
+            <div id="draw-prompt-flex" class="h-flex">
+                <div class="prompt-box" id="draw-prompt"></div>
+                <button id="drawing-submit">Submit</button>
+            </div>
         </div>
     </section>
 
     <section id="guess-section" class="hidden">
-        <div class="timer-header">
-            <div id="guess-timer-mirror" class="timer-mirror">2:00</div>
-            <h2>Make your guess</h2>
-            <div id="guess-timer" class="timer">2:00</div>
-        </div>
-        <div>
-            <canvas id="guess-canvas" width="800" height="500"></canvas>
-            <div id="guess-row" class="h-flex">
-                <input type="text" id="guess-input" placeholder="Guess Phrase">
-                <button id="guess-btn">Submit</button>
+        <div class="center-column">
+            <div class="timer-header">
+                <div id="guess-timer-mirror" class="timer-mirror">2:00</div>
+                <h2>Make your guess</h2>
+                <div id="guess-timer" class="timer">2:00</div>
+            </div>
+            <div>
+                <canvas id="guess-canvas" width="800" height="500"></canvas>
+                <div id="guess-row" class="h-flex">
+                    <input type="text" id="guess-input" placeholder="Guess Phrase">
+                    <button id="guess-btn">Submit</button>
+                </div>
             </div>
         </div>
     </section>
 
     <section id="results-section" class="hidden">
-        <h1>Results</h1>
+        <div class="center-column">
+            <h1>Results</h1>
+        </div>
     </section>
 
     <script src="./app.js"></script>

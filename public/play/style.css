@@ -14,7 +14,6 @@ body {
     background: #f4f4f4;
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 20px;
     height: 100vh;
 }
 
@@ -61,6 +60,7 @@ canvas {
     display: flex;
     gap: 10px;
     align-items: center;
+    justify-content: center;
 }
 
 #color-panel {
@@ -80,11 +80,25 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 #start-section,#guess-section {
     justify-content: center;
     height: 100%;
+}
+
+#drawing-section {
+    background-image: url('/assets/backgrounds/drawing.png');
+}
+
+#guess-section {
+    background-image: url('/assets/backgrounds/guessing.png');
 }
 
 .hidden {
@@ -176,4 +190,22 @@ button:hover {
 
 .timer-mirror {
     visibility: hidden;
+}
+
+#results-section,
+#results-section .center-column {
+    overflow-y: auto;
+}
+
+.center-column {    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    padding-bottom: 2em;
+}
+
+.center-column::-webkit-scrollbar {
+    width: 0;
+    height: 0;
 }

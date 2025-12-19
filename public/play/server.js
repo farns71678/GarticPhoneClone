@@ -217,7 +217,7 @@ function setTimer(start) {
 }
 
 function endGame(players) {
-    const resultsSection = document.getElementById("results-section");
+    const resultsSection = document.querySelector("#results-section .center-column");
     const roundMax = players.length;
     players.forEach((player, i) => {
         resultsSection.appendChild(document.createElement('br'));
