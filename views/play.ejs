@@ -24,11 +24,16 @@
             <ul id="players-ul"></ul>
         </div>
         <% if (isHost) { %>
-            <button id="begin-game-btn">Begin Game</button>
+            <button id="begin-game-btn" disabled>Begin Game</button>
+        <% } else { %>
+            <p>Waiting for host to start the game...</p>
         <% } %>
     </section>
 
     <section id="start-section" class="hidden">
+        <% if (isHost) { %>
+            <button class="end-game-btn">End Game</button>
+        <% } %>
         <h1>Start with a short phrase</h1>
         <div class="h-flex">
             <input type="text" id="phrase-input" placeholder="Ex: a teleporting loaf of bread">
@@ -37,6 +42,9 @@
     </section>
 
     <section id="drawing-section" class="hidden">
+        <% if (isHost) { %>
+            <button class="end-game-btn">End Game</button>
+        <% } %>
         <div class="center-column">
             <div class="timer-header">
                 <div id="draw-timer-mirror" class="timer-mirror">2:00</div>
@@ -78,6 +86,7 @@
     </section>
 
     <section id="results-section" class="hidden">
+        <button id="join-btn">New Game</button>
         <div class="center-column">
             <h1>Results</h1>
         </div>

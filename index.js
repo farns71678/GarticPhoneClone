@@ -37,6 +37,9 @@ function createGameRoom(host) {
     const joinCode = generateJoinCode();
     const newRoom = new GameRoom(id, joinCode, host);
     gameRooms.push(newRoom);
+    newRoom.endGameCaller = (room) => {
+        gameRooms = gameRooms.filter(r => r.id !== room.id);
+    };
     return newRoom;
 }
 
@@ -180,6 +183,7 @@ wss.on('connection', (ws, req, client) => {
             }
 
             player.socket = ws;
+            room.broadcastMessage({ type: 'player-connected', player: { username: player.username } });
             console.log(`WebSocket authenticated for player ${player.username} in game ${room.joinCode}`);
 
             // initialize ws events
@@ -193,7 +197,12 @@ wss.on('connection', (ws, req, client) => {
                     }
                     else if (message.type === 'start-game' && room.host.id === player.id && room.stage === 'lobby') {
                         room.stage = 'prompt';
+                        // remove all the players that are not currently connected when the game begins
+                        room.players = room.players.filter(p => p.socket && p.socket.readyState === WebSocket.OPEN);
                         room.broadcastMessage({ type: 'start-game' });
+                    }
+                    else if (message.type === 'end-game' && room.host.id === player.id) {
+                        room.endGame();
                     }
                     else if (message.type === 'set-prompt' && room.stage === 'prompt' && !player.startingPrompt) {
                         player.startingPrompt = message.prompt;

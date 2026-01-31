@@ -18,13 +18,15 @@ class GameRoom {
         this.round = 0;
         this.addPlayer(this.host);
         this.timeout = null;
+        this.endGameCaller = null;
     }
 
     addPlayer(player) {
         this.players.push(player);
 
         // message existing players about new player
-        this.broadcastMessage({ type: 'player-connected', player: { username: player.username } });
+        // only message once player's websocket is connected
+        //this.broadcastMessage({ type: 'player-connected', player: { username: player.username } });
     }
 
     broadcastMessage(message) {
@@ -69,7 +71,7 @@ class GameRoom {
         if (this.stage === GameStage.GUESSING || this.stage === GameStage.DRAWING) {
             const room = this;
             // adds a bit of buffer to wait for the players to respond
-            this.timeout = setTimeout(() => room.advanceRound(), 1000 * 60 * 2 + 500);
+            //this.timeout = setTimeout(() => room.advanceRound(), 1000 * 60 * 2 + 500);
         } 
     }
 
@@ -82,11 +84,28 @@ class GameRoom {
     }
 
     endGame() {
+        if (this.stage === GameStage.LOBBY || this.stage === GameStage.PROMPT) {
+            this.disposeGameRoom();
+            return;
+        }
         this.stage = GameStage.RESULTS;
         this.broadcastMessage({ 
             type: 'results-stage',
             players: this.players.map(p => { return { id: p.id, username: p.username, startingPrompt: p.startingPrompt, drawings: p.drawings, guesses: p.guesses }; })
         });
+        this.disposeGameRoom();
+    }
+
+    disposeGameRoom() {
+        this.players.forEach(player => {
+            player.socket.close();
+        });
+        this.players = [];
+        this.drawings = [];
+        this.guesses = [];
+        if (this.endGameCaller) {
+            this.endGameCaller(this);
+        }
     }
 }
 

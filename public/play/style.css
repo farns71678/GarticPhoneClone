@@ -86,6 +86,7 @@ section {
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
+    position: relative;
 }
 
 #start-section,#guess-section {
@@ -99,6 +100,14 @@ section {
 
 #guess-section {
     background-image: url('/assets/backgrounds/guessing.png');
+}
+
+.end-game-btn,
+#join-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
 }
 
 .hidden {
@@ -186,23 +195,22 @@ button:hover {
     font-weight: bold;
     color:rgb(54, 147, 208);
     font-variant-numeric: tabular-nums lining-nums;
-}
-
-.timer-mirror {
     visibility: hidden;
 }
+
 
 #results-section,
 #results-section .center-column {
     overflow-y: auto;
 }
 
-.center-column {    
+.center-column {
     display: flex;
     flex-direction: column;
     align-items: center;
     overflow-y: auto;
     padding-bottom: 2em;
+    width: 100%
 }
 
 .center-column::-webkit-scrollbar {

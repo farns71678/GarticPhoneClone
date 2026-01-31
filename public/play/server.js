@@ -48,10 +48,16 @@ try {
                 li.innerText = message.player.username;
                 playerList.appendChild(li);
                 players.push(message.player);
+                if (players.length === 2) {
+                    document.getElementById("begin-game-btn").disabled = false;
+                }
             }
         }
         else if (message.type === 'player-disconnected') {
             players = players.filter(p => p.username !== message.player.username);
+            if (players.length < 2) {
+                document.getElementById("begin-game-btn").disabled = true;
+            }
             const items = playerList.getElementsByTagName("li");
             for (let i = 0; i < items.length; i++) {
                 if (items[i].innerText === message.player.username) {
@@ -83,6 +89,10 @@ try {
 
     socket.addEventListener("close", () => {
         console.log("WebSocket closed");
+        if (document.getElementById("results-section").classList.contains("hidden")) {
+            alert("Connection to server lost.");
+            window.location.href = "/";
+        }
     });
 }
 catch (err) {
@@ -112,6 +122,15 @@ document.getElementById("guess-btn").addEventListener("click", function () {
         this.disabled = true;
     }
 });
+
+const endGameButtons = document.querySelectorAll(".end-game-btn");
+endGameButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: "end-game" }));
+        }
+    })
+})
 
 function switchSection(sectionId) {
     const sections = document.getElementsByTagName("section");
@@ -190,6 +209,7 @@ function drawToContext(drawActions, context) {
 }
 
 function setTimer(start) {
+    return;
     startTime = start;
 
     if (timerInterval) {
@@ -235,13 +255,15 @@ function endGame(players) {
                 const drawing = player.drawings[(r - 1) / 2];
                 const canvas = createElementFromHTML(`<canvas height='500' width='800'></canvas>`);
                 const ctx = canvas.getContext('2d');
-                drawToContext(drawing.actions, ctx);
+                if (drawing && drawing.actions) {
+                    drawToContext(drawing.actions, ctx);
+                }
                 resultsSection.appendChild(createElementFromHTML(`<h4>Drew by ${player.username}</h4>`));
                 resultsSection.appendChild(canvas);
             }
             else {
                 const guess = player.guesses[r / 2 - 1];
-                resultsSection.appendChild(createElementFromHTML(`<div class="prompt-box">${player.username}: ${guess}</div>`));
+                resultsSection.appendChild(createElementFromHTML(`<div class="prompt-box">${player.username}: ${guess || ""}</div>`));
             }
         }
     });

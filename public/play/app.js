@@ -50,16 +50,24 @@ const tools = {
 };
 
 const defaultColors = [
-    "#FFFFFFFF", "#000000FF",
-    "#FF0000FF", "#00FF00FF",
-    "#0000FFFF", "#FFFF00FF",
-    "#FF00FFFF", "#00FFFFFF",
-    "#aaaaaaFF", "#8D6F64FF"
-]
+    "#FFFFFF", "#000000",
+    "#FF0000", "#ffa200",
+    "#FFFF00", "#00FF00",
+    "#009900", "#0000FF", 
+    "#00FFFF", "#FF00FF", 
+    "#805242"
+];
 
 defaultColors.forEach((color) => {
     colorPanel.insertAdjacentHTML("beforeend", `<div class="color-option" data-color="${color}" style="--color:${color}"></div>`)
-})
+});
+
+const colorOptions = document.querySelectorAll('.color-option');
+colorOptions.forEach(option => {
+    option.addEventListener('click', function () {
+        document.getElementById('colorPicker').value = this.getAttribute('data-color');
+    });
+});
 
 // init tools
 Object.keys(tools).forEach((key) => {
@@ -272,6 +280,10 @@ class PolygonPath extends Path {
         };
     }
 }
+
+document.getElementById("join-btn").addEventListener('click', () => {
+    window.location.href = '/join';
+});
 
 // event listeners
 canvas.addEventListener('contextmenu', (event) => {
@@ -499,7 +511,10 @@ function floodFill(imageData, x, y, targetColor, fillColor) {
 
 function undo() {
     if (viewActionIndex >= 0) {
-        if (currentPath == null) viewActionIndex--;
+        if (currentPath == null) {
+            viewActionIndex--;
+            actionHistory.push({ type: "undo" });
+        }
         else {
             if (currentTool == 'polygon') {
                 currentPath.points.pop();
@@ -509,7 +524,6 @@ function undo() {
             }
         }
         paintCanvas();
-        actionHistory.push({ type: "undo" });
     }
 }
 
