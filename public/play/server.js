@@ -209,7 +209,6 @@ function drawToContext(drawActions, context) {
 }
 
 function setTimer(start) {
-    return;
     startTime = start;
 
     if (timerInterval) {

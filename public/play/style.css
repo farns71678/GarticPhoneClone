@@ -195,9 +195,12 @@ button:hover {
     font-weight: bold;
     color:rgb(54, 147, 208);
     font-variant-numeric: tabular-nums lining-nums;
-    visibility: hidden;
 }
 
+
+.timer-mirror {
+    visibility: hidden;
+}
 
 #results-section,
 #results-section .center-column {

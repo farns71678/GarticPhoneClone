@@ -71,7 +71,7 @@ class GameRoom {
         if (this.stage === GameStage.GUESSING || this.stage === GameStage.DRAWING) {
             const room = this;
             // adds a bit of buffer to wait for the players to respond
-            //this.timeout = setTimeout(() => room.advanceRound(), 1000 * 60 * 2 + 500);
+            this.timeout = setTimeout(() => room.advanceRound(), 1000 * 60 * 2 + 500);
         } 
     }
 
