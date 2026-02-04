@@ -189,7 +189,7 @@ class EraserPath extends Path {
 
 class ClearPath {
     draw(context) {
-        clearCanvas();
+        clearCanvas(context);
     }
 
     toPlainObject() {

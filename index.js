@@ -12,6 +12,7 @@ const { checkUser } = require('./middleware/authmiddleware');
 const app = express();
 
 let gameRooms = [];
+let joinRoom = null;
 
 const maxAge = 24 * 60 * 60;
 const createToken = (id, gameId) => {
@@ -39,6 +40,9 @@ function createGameRoom(host) {
     gameRooms.push(newRoom);
     newRoom.endGameCaller = (room) => {
         gameRooms = gameRooms.filter(r => r.id !== room.id);
+        if (room === joinRoom) {
+            joinRoom = null;
+        }
     };
     return newRoom;
 }
@@ -63,6 +67,7 @@ app.get('/hostgame', checkUser, (req, res) => {
     try {
         const host = new Player(uuidv4(), username);
         const room = createGameRoom(host);
+        joinRoom = room;
         res.cookie('jwt', createToken(host.id, room.id), { httpOnly: true, maxAge: maxAge * 1000});
         res.redirect(`http://localhost:3000/play?playerID=${host.id}&username=${host.username}&room=${room.id}`);
         //res.json({ roomId: room.id, joinCode: room.joinCode, playerID: host.id, username: host.username });
@@ -75,12 +80,13 @@ app.get('/hostgame', checkUser, (req, res) => {
 
 app.get('/joingame'/*, checkUser*/, (req, res) => {
     const query = req.query;
-    if (!query.joinCode || !query.username) {
+    if (/*!query.joinCode ||*/ !query.username) {
         res.status(400).json({ error: "Join code and username are required" });
         return;
     }
 
-    const room = gameRooms.find(r => r.joinCode === query.joinCode);
+    //const room = gameRooms.find(r => r.joinCode === query.joinCode);
+    const room = joinRoom;
     if (!room) {
         res.status(404).json({ error: "Game room not found" });
         return;
@@ -197,6 +203,7 @@ wss.on('connection', (ws, req, client) => {
                     }
                     else if (message.type === 'start-game' && room.host.id === player.id && room.stage === 'lobby') {
                         room.stage = 'prompt';
+                        joinRoom = null;
                         // remove all the players that are not currently connected when the game begins
                         room.players = room.players.filter(p => p.socket && p.socket.readyState === WebSocket.OPEN);
                         room.broadcastMessage({ type: 'start-game' });
@@ -230,6 +237,10 @@ wss.on('connection', (ws, req, client) => {
                 try {
                     console.log('Websocket connection closed for player ' + player.username);
                     player.socket = null;
+                    if (player === room.host) {
+                        room.endGame();
+                        return;
+                    }
                     room.broadcastMessage({ type: 'player-disconnected', player: { username: player.username }});
                 }
                 catch (err) {

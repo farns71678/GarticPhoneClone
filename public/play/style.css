@@ -195,10 +195,6 @@ button:hover {
     font-weight: bold;
     color:rgb(54, 147, 208);
     font-variant-numeric: tabular-nums lining-nums;
-}
-
-
-.timer-mirror {
     visibility: hidden;
 }
 

@@ -194,6 +194,9 @@ function drawToContext(drawActions, context) {
                 drawAction = new PolygonPath(action.color, action.thickness);
                 drawAction.points = action.points;
                 break;
+            case 'clear-path':
+                drawAction = new ClearPath();
+                break;
             case 'undo':
                 undo();
                 break;
@@ -209,6 +212,7 @@ function drawToContext(drawActions, context) {
 }
 
 function setTimer(start) {
+    return;
     startTime = start;
 
     if (timerInterval) {
@@ -245,10 +249,11 @@ function endGame(players) {
         resultsSection.appendChild(createElementFromHTML(`<div class="prompt-box">${player.startingPrompt}</div>`));
 
         // go through rounds
-        let drawingStage = false; 
+        // given the player, we want to find what other players drew/guessed in each round
+        let drawingStage = false; // really is true at start of loop
         for (let r = 1; r < roundMax; r++) {
-            drawingStage = !drawingStage;
-            const playerIndex = (i + r) % players.length;
+            drawingStage = !drawingStage; 
+            const playerIndex = (i + players.length - r) % players.length;
             const player = players[playerIndex];
             if (drawingStage) {
                 const drawing = player.drawings[(r - 1) / 2];

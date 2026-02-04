@@ -56,13 +56,13 @@ class GameRoom {
         const startTime = Date.now();
         this.players.forEach((player, index) => {
             if (player.socket && player.socket.readyState === WebSocket.OPEN) {
-                const promptIndex = (index + this.round) % this.players.length;
+                const promptIndex = (index + 1) % this.players.length;
                 if (this.stage === GameStage.DRAWING) {
-                    const prompt = this.round == 1 ? this.players[(index - 1 + this.players.length) % this.players.length].startingPrompt : this.players[promptIndex].guesses[Math.floor(this.round / 2) - 2];
+                    const prompt = this.round == 1 ? this.players[promptIndex].startingPrompt : this.players[promptIndex].guesses[(this.round - 1) / 2 - 1]; // should be odd
                     player.socket.send(JSON.stringify({ type: 'drawing-stage', prompt: prompt, round: this.round, startTime }));
                 }
                 else if (this.stage === GameStage.GUESSING) {
-                    const drawing = this.players[promptIndex].drawings[Math.floor(this.round / 2) - 1];
+                    const drawing = this.players[promptIndex].drawings[this.round / 2 - 1]; // should be even > 0
                     player.socket.send(JSON.stringify({ type: 'guessing-stage', drawing: drawing, round: this.round, startTime }));
                 }
             }
@@ -71,7 +71,7 @@ class GameRoom {
         if (this.stage === GameStage.GUESSING || this.stage === GameStage.DRAWING) {
             const room = this;
             // adds a bit of buffer to wait for the players to respond
-            this.timeout = setTimeout(() => room.advanceRound(), 1000 * 60 * 2 + 500);
+            //this.timeout = setTimeout(() => room.advanceRound(), 1000 * 60 * 2 + 500);
         } 
     }
 

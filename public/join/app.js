@@ -23,10 +23,10 @@ document.getElementById("join-game-btn").addEventListener("click", async functio
     const gameCode = gameCodeInput.value.trim();
     const username = document.getElementById("username-input").value.trim();
 
-    if (gameCode.length < 6) {
-        joinError.innerText = "Please enter a valid 6-digit game code.";
-        return;
-    }
+    // if (gameCode.length < 6) {
+    //     joinError.innerText = "Please enter a valid 6-digit game code.";
+    //     return;
+    // }
     if (!username) {
         joinError.innerText = "Please enter a username.";
         return;
